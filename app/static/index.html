@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Latency Lab — Laboratorio de latencia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark"></span>latency lab</div>
+        <div class="status" id="status" aria-label="Estado de los servicios">
+          <span class="status-item" data-backend="memory"
+            ><i></i>memoria</span
+          >
+          <span class="status-item" data-backend="redis"><i></i>valkey</span>
+          <span class="status-item" data-backend="postgres"
+            ><i></i>postgres</span
+          >
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="signal" aria-hidden="true">
+            <svg viewBox="0 0 320 400" role="presentation">
+              <defs>
+                <radialGradient id="halo">
+                  <stop offset="0%" stop-color="#e4b95b" stop-opacity="0.30" />
+                  <stop offset="55%" stop-color="#e4b95b" stop-opacity="0.08" />
+                  <stop offset="100%" stop-color="#e4b95b" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#e4b95b" stop-opacity="0.22" />
+                  <stop offset="100%" stop-color="#e4b95b" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+
+              <ellipse cx="160" cy="196" rx="126" ry="168" fill="url(#halo)" />
+              <path
+                class="beam"
+                d="M152 -40 L168 -40 L280 390 L40 390 Z"
+                fill="url(#beam)"
+              />
+
+              <g class="figure" fill="#040507" stroke="#252b36" stroke-width="1">
+                <path d="M160 120 C128 122 100 142 82 190 C68 228 62 282 54 356 L96 328 L126 362 L160 336 L194 362 L224 328 L266 356 C258 282 252 228 238 190 C220 142 192 122 160 120 Z" />
+                <path d="M139 218 L158 218 L156 352 L134 346 Z" />
+                <path d="M162 218 L181 218 L186 346 L164 352 Z" />
+                <path d="M143 126 L123 140 L126 206 L143 214 L153 166 Z" />
+                <path d="M177 126 L197 140 L194 206 L177 214 L167 166 Z" />
+                <path d="M143 122 L177 122 L186 224 L134 224 Z" />
+                <path d="M144 88 L139 56 L153 74 L160 68 L167 74 L181 56 L176 88 C183 100 179 118 160 124 C141 118 137 100 144 88 Z" />
+              </g>
+              <rect x="135" y="190" width="50" height="9" fill="#e4b95b" opacity="0.85" />
+              <rect x="154" y="188" width="12" height="13" fill="#08090c" stroke="#e4b95b" stroke-width="1" />
+            </svg>
+          </div>
+
+          <div class="hero-copy">
+            <h1>Laboratorio<br />de latencia</h1>
+            <p class="lede">Una variable. Tres capas. Cada microsegundo contado.</p>
+            <p class="detail">
+              Mide la misma clave en memoria, en la caché distribuida y en
+              PostgreSQL. Lee, escribe y compara con la concurrencia que quieras.
+            </p>
+          </div>
+        </section>
+
+        <section class="console panel" aria-labelledby="console-title">
+          <div class="panel-head">
+            <h2 id="console-title">Consola de medición</h2>
+            <span class="panel-note">configura y ejecuta</span>
+          </div>
+
+          <form id="bench-form">
+            <div class="field-grid">
+              <label class="field">
+                <span>clave</span>
+                <input id="key" name="key" type="text" value="theta" required />
+              </label>
+              <label class="field">
+                <span>valor</span>
+                <input id="value" name="value" type="text" value="42" required />
+              </label>
+              <label class="field">
+                <span>iteraciones</span>
+                <input id="iterations" name="iterations" type="number" min="1" max="100000" value="500" required />
+              </label>
+              <label class="field">
+                <span>calentamiento</span>
+                <input id="warmup" name="warmup" type="number" min="0" max="10000" value="50" required />
+              </label>
+              <label class="field">
+                <span>concurrencia</span>
+                <select id="concurrency" name="concurrency">
+                  <option value="1" selected>1 — secuencial</option>
+                  <option value="4">4 tareas</option>
+                  <option value="16">16 tareas</option>
+                  <option value="64">64 tareas</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="toggles">
+              <fieldset>
+                <legend>operación</legend>
+                <label class="toggle"><input type="checkbox" name="operation" value="read" checked /><span>leer</span></label>
+                <label class="toggle"><input type="checkbox" name="operation" value="write" checked /><span>escribir</span></label>
+              </fieldset>
+              <fieldset>
+                <legend>capas</legend>
+                <label class="toggle"><input type="checkbox" name="backend" value="memory" checked /><span>memoria</span></label>
+                <label class="toggle"><input type="checkbox" name="backend" value="redis" checked /><span>valkey</span></label>
+                <label class="toggle"><input type="checkbox" name="backend" value="postgres" checked /><span>postgres</span></label>
+              </fieldset>
+            </div>
+
+            <div class="actions">
+              <button id="run" type="submit">ejecutar medición</button>
+              <span class="action-hint" id="action-hint">las capas se miden por separado, no en paralelo</span>
+            </div>
+          </form>
+        </section>
+
+        <div id="error" class="error-banner" role="alert" hidden></div>
+
+        <section class="results" aria-labelledby="results-title">
+          <div class="panel-head results-head">
+            <h2 id="results-title">Resultados</h2>
+            <span class="panel-note" id="results-meta">esperando medición</span>
+          </div>
+          <div id="results" class="results-grid" aria-live="polite">
+            <div class="empty-state">
+              <span class="empty-mark">◇</span>
+              <p>Sin datos todavía.</p>
+              <p class="empty-sub">Ajusta la consola y ejecuta una medición.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>escala logarítmica en las barras comparativas</span>
+        <span>latencia por operación en µs · rendimiento en ops/s</span>
+      </footer>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
