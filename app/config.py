@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     memory_ttl_seconds: int = 3600
     pg_pool_min_size: int = 1
     pg_pool_max_size: int = 10
+    pg_auto_migrate: bool = True
 
     default_key: str = "theta"
     default_value: str = "42"

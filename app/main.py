@@ -26,6 +26,7 @@ async def lifespan(app: FastAPI):
             settings.database_url,
             min_size=settings.pg_pool_min_size,
             max_size=settings.pg_pool_max_size,
+            auto_migrate=settings.pg_auto_migrate,
         ),
     }
 

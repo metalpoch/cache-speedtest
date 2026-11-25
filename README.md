@@ -17,6 +17,8 @@ make up
 
 Abre <http://localhost:8000>. Los contenedores levantan Valkey, PostgreSQL (con la tabla del `sql/init.sql`) y la app.
 
+La app crea la tabla `runtime_variables` al arrancar con `CREATE TABLE IF NOT EXISTS`, así que funciona también contra un PostgreSQL externo (Neon, Supabase, etc.) sin ejecutar migraciones a mano. Para desactivarlo, pon `PG_AUTO_MIGRATE=false` en `.env` y crea la tabla tú mismo con `sql/init.sql`. El usuario de la URI necesita permisos de `CREATE TABLE`.
+
 Para correr la app en tu máquina contra los contenedores:
 
 ```bash

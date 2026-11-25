@@ -1,5 +1,13 @@
 import asyncpg
 
+CREATE_TABLE_SQL = """
+CREATE TABLE IF NOT EXISTS runtime_variables (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+)
+"""
+
 
 class PostgresBackend:
     """Consultas directas con asyncpg, sin ORM."""
@@ -7,11 +15,16 @@ class PostgresBackend:
     name = "postgres"
 
     def __init__(
-        self, dsn: str, min_size: int = 1, max_size: int = 10
+        self,
+        dsn: str,
+        min_size: int = 1,
+        max_size: int = 10,
+        auto_migrate: bool = True,
     ) -> None:
         self._dsn = dsn
         self._min_size = min_size
         self._max_size = max_size
+        self._auto_migrate = auto_migrate
         self._pool: asyncpg.Pool | None = None
 
     @property
@@ -24,6 +37,9 @@ class PostgresBackend:
         self._pool = await asyncpg.create_pool(
             dsn=self._dsn, min_size=self._min_size, max_size=self._max_size
         )
+        if self._auto_migrate:
+            async with self._pool.acquire() as connection:
+                await connection.execute(CREATE_TABLE_SQL)
 
     async def get(self, key: str) -> str | None:
         return await self.pool.fetchval(
